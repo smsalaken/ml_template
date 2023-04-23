@@ -1,4 +1,3 @@
-from textwrap import fill
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import RepeatedStratifiedKFold
@@ -25,6 +24,7 @@ y = pd.DataFrame(data.target, columns = ['wine'])
 # make preprocessing pipeline
 # since simpleImputer do not return feature names, we need to add a method
 SimpleImputer.get_feature_names_out = (lambda self, names = None: self.feature_names_in_)
+SimpleImputer.get_feature_names = (lambda self, names = None: self.feature_names_in_)
 
 
 # define a number of pipeline options
@@ -62,10 +62,12 @@ rskf = RepeatedStratifiedKFold(n_splits = 5, n_repeats = 1, random_state = rands
 
 for train_index, test_index in rskf.split(x,y):
     x_train, x_test = x.iloc[train_index], x.iloc[test_index]
-    y_train, y_test = y.iloc[test_index], y.iloc[test_index]
+    y_train, y_test = y.iloc[train_index], y.iloc[test_index]
 
     # fit the preprocessing pipeline on train dataset
     transformer.fit(x_train)
+
+    transformer.get_feature_names()
 
     # specify feature names after preprocessing
     # will need this in the feature importance exploration
